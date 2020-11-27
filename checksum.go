@@ -7,7 +7,7 @@ import (
 )
 
 /*
- * Copyright (c) 2019 Norwegian University of Science and Technology
+ * Copyright (c) 2019, 2020 Norwegian University of Science and Technology
  */
 
 // CheckSum implements some kind of checksum given a slice of bytes or string
@@ -25,5 +25,5 @@ func (mcs *Murmur3CheckSum) SumString(str string) string {
 }
 
 func (mcs *Murmur3CheckSum) SumBytes(b []byte) string {
-	return hex.EncodeToString(mmh3.Hash128(b))
+	return hex.EncodeToString(mmh3.Hash128x64(b))
 }
