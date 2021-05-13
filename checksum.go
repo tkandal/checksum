@@ -1,9 +1,10 @@
 package checksum
 
 import (
-	"bytes"
+	"crypto/sha256"
 	"encoding/hex"
 	"github.com/DataDog/mmh3"
+	"hash"
 )
 
 /*
@@ -20,10 +21,31 @@ type Murmur3CheckSum struct {
 }
 
 func (mcs *Murmur3CheckSum) SumString(str string) string {
-	buf := bytes.NewBufferString(str)
-	return mcs.SumBytes(buf.Bytes())
+	return mcs.SumBytes([]byte(str))
 }
 
 func (mcs *Murmur3CheckSum) SumBytes(b []byte) string {
 	return hex.EncodeToString(mmh3.Hash128x64(b))
+}
+
+type SHA256CheckSum struct {
+	hasher hash.Hash
+}
+
+func (h *SHA256CheckSum) SumString(str string) string {
+	return h.SumBytes([]byte(str))
+}
+
+func (h *SHA256CheckSum) SumBytes(b []byte) string {
+	hasher := h.getHasher()
+	// hash.Write never returns an error, (int, error) is just to satisfy writer interface
+	_, _ = hasher.Write(b)
+	return hex.EncodeToString(hasher.Sum(nil))
+}
+
+func (h *SHA256CheckSum) getHasher() hash.Hash {
+	if h.hasher == nil {
+		h.hasher = sha256.New()
+	}
+	return h.hasher
 }
